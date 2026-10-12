@@ -1,0 +1,74 @@
+name: Auto-merge book submissions
+
+# A submission PR only adds a folder under books-submission/. Once every changed
+# file sits in that folder and the book payload validates, the PR is labelled
+# and merged automatically so the library picks it up without a rebuild.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check the pull request only touches books-submission
+        id: scope
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed=$(git diff --name-only "$BASE" "$HEAD")
+          echo "$changed"
+          if [ -z "$changed" ] || echo "$changed" | grep -qvE '^books-submission/'; then
+            echo "in_scope=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "in_scope=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate every meta.json in the pull request
+        if: steps.scope.outputs.in_scope == 'true'
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          fail=0
+          for meta in $(git diff --name-only "$BASE" "$HEAD" | grep -E '^books-submission/[^/]+/meta\.json$'); do
+            if [ ! -f "$meta" ]; then continue; fi
+            if ! node -e "
+              const fs = require('fs');
+              const meta = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+              const required = ['title', 'author', 'genre', 'description'];
+              const missing = required.filter((key) => !String(meta[key] ?? '').trim());
+              if (missing.length) { console.error('missing', missing.join(',')); process.exit(1); }
+            " "$meta"; then
+              echo "Invalid meta.json: $meta"
+              fail=1
+            fi
+            dir=$(dirname "$meta")
+            if ! ls "$dir"/book*.txt >/dev/null 2>&1; then
+              echo "No book text found next to $meta"
+              fail=1
+            fi
+          done
+          [ "$fail" -eq 0 ] || exit 1
+
+      - name: Label and merge
+        if: steps.scope.outputs.in_scope == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh label create submission --color 0e8a16 --description "Community book submission" || true
+          gh pr edit "$PR" --add-label "submission" || true
+          gh pr merge "$PR" --squash --delete-branch
