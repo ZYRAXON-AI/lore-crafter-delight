@@ -65,6 +65,14 @@ export const Route = createFileRoute("/api/books")({
             content: `${JSON.stringify(submission.meta, null, 2)}\n`,
           },
           { path: `${FOLDER}/${submission.slug}/book.txt`, content: `${submission.bookText}\n` },
+          ...(submission.coverFile
+            ? [
+                {
+                  path: `${FOLDER}/${submission.slug}/${submission.coverFile.name}`,
+                  content: submission.coverFile.content,
+                },
+              ]
+            : []),
         ];
 
         const token = process.env["GITHUB_TOKEN"];

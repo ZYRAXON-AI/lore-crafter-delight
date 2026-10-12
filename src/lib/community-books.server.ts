@@ -80,6 +80,12 @@ async function loadBook(
   const meta = readMeta(await fetchTextFile(`${base}/${metaName}`));
   if (!String(meta["title"] ?? "").trim()) return undefined;
 
+  // A cover image is compulsory too: either an in-folder cover.* / icon.* file
+  // or a cover_url in meta.json. Without one the book stays off the shelf.
+  const metaCover = String(meta["cover_url"] ?? meta["cover"] ?? "").trim();
+  const coverFile = pickFirst(files, COVER_CANDIDATES);
+  if (!metaCover && !coverFile) return undefined;
+
   const bookFile =
     pickFirst(files, BOOK_FILE_CANDIDATES) ??
     files.find((name) => isTextFile(name) || name.toLowerCase().endsWith(".pdf"));
@@ -91,9 +97,7 @@ async function loadBook(
   // the title always comes from meta.json now that it is required.
   const derived = deriveMeta(slug, meta, text);
 
-  const metaCover = String(meta["cover_url"] ?? meta["cover"] ?? "").trim();
-  const coverFile = pickFirst(files, COVER_CANDIDATES);
-  const coverUrl = metaCover || (coverFile ? `/api/community-file/${slug}/${coverFile}` : "");
+  const coverUrl = metaCover || `/api/community-file/${slug}/${coverFile}`;
 
   const chapters = hasText ? splitChapters(text) : [];
   const pdfUrl = hasText ? "" : `/api/community-file/${slug}/${bookFile}`;

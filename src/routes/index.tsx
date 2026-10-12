@@ -312,7 +312,7 @@ function Index() {
             </div>
             <a
               className="contribute-link"
-              href="https://github.com/zyraxon-X/lore-crafter-delight/tree/main/books-submission"
+              href="https://github.com/ZYRAXON-AI/lore-crafter-delight/tree/main/pdf-library"
               target="_blank"
               rel="noreferrer"
             >

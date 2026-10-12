@@ -26,6 +26,7 @@ export type ValidatedSubmission = {
     language: string;
   };
   bookText: string;
+  coverFile: { name: string; content: string } | null;
   chapterCount: number;
   wordCount: number;
 };
@@ -43,6 +44,51 @@ export class SubmissionError extends Error {
 }
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+// Every published book must carry a cover, so API submissions that do not send
+// a cover_url get a generated SVG title card instead of arriving bare.
+const COVER_PALETTE = [
+  ["#3b2f63", "#c9a24b"],
+  ["#243b55", "#7fb3d5"],
+  ["#5a3d2b", "#e0b27a"],
+  ["#2f4858", "#86b8a1"],
+  ["#4a2545", "#d98ca0"],
+  ["#2b2b2b", "#b0b0b0"],
+];
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return hash;
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export function makeCoverSvg(title: string, author: string, genre: string): string {
+  const [c1, c2] = COVER_PALETTE[hashString(title) % COVER_PALETTE.length] as [string, string];
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="320" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${c1}"/>
+      <stop offset="1" stop-color="${c2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="512" fill="url(#g)"/>
+  <circle cx="250" cy="90" r="70" fill="#ffffff" opacity="0.08"/>
+  <circle cx="60" cy="430" r="90" fill="#000000" opacity="0.12"/>
+  <text x="32" y="150" fill="#ffffff" opacity="0.8" font-family="sans-serif" font-size="15">${escapeXml(genre)}</text>
+  <text x="32" y="300" fill="#ffffff" font-family="serif" font-size="30" font-weight="700">${escapeXml(title)}</text>
+  <rect x="32" y="322" width="70" height="3" fill="#ffffff" opacity="0.7"/>
+  <text x="32" y="356" fill="#ffffff" opacity="0.75" font-family="sans-serif" font-size="14">${escapeXml(author)}</text>
+</svg>
+`;
+}
 
 // Bangla titles become ASCII slugs for the submission folder name.
 const TRANSLIT: [string, string][] = [
@@ -180,6 +226,23 @@ export function validateSubmission(payload: BookPayload): ValidatedSubmission {
   // may POST only text and still get a complete, publishable meta.json.
   const meta = deriveMeta(slug, { title, author, genre, description, language }, text);
 
+  // A cover is compulsory. When the caller sends a cover_url we keep it; when
+  // they post a data-URL image we commit it as the folder's cover; otherwise we
+  // generate a title-card SVG so no published book is ever bare.
+  const coverUrl = clean(payload.coverUrl, 500);
+  const dataMatch = /^data:image\/(svg\+xml|png|jpeg|webp);base64,([\s\S]+)$/.exec(coverUrl);
+  const coverFile = dataMatch
+    ? {
+        name: `cover.${dataMatch[1] === "svg+xml" ? "svg" : dataMatch[1] === "jpeg" ? "jpg" : dataMatch[1]}`,
+        content: Buffer.from(dataMatch[2] ?? "", "base64").toString("utf8"),
+      }
+    : coverUrl
+      ? null
+      : {
+          name: "cover.svg",
+          content: makeCoverSvg(meta.title, meta.author, meta.genre),
+        };
+
   return {
     slug,
     meta: {
@@ -187,9 +250,10 @@ export function validateSubmission(payload: BookPayload): ValidatedSubmission {
       author: meta.author,
       genre: meta.genre,
       description: meta.description,
-      cover_url: clean(payload.coverUrl, 500),
+      cover_url: coverFile ? "" : coverUrl,
       language: meta.language,
     },
+    coverFile,
     bookText: text,
     chapterCount: chapters,
     wordCount: words,

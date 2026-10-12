@@ -12,9 +12,11 @@ import {
   LockKeyhole,
   FileText,
   Printer,
+  Headphones,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookCover } from "@/components/book-cover";
+import { ChapterListener } from "@/components/chapter-listener";
 import { LibraryHeader } from "@/components/library-header";
 import { genreClass, type Book } from "@/lib/books";
 import { formatNumber, useLanguage } from "@/lib/i18n";
@@ -63,8 +65,14 @@ function Reader() {
   const [showContents, setShowContents] = useState(false);
   const [finished, setFinished] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [listen, setListen] = useState(false);
 
   const chapter = book.chapters[chapterIndex];
+  const hasNext = chapterIndex < book.chapters.length - 1;
+  const goToChapter = (index: number) => {
+    setChapterIndex(index);
+    setFinished(false);
+  };
   if (!chapter) {
     return (
       <div className={`reader-page ${genreClass(book.genre)}`}>
@@ -131,6 +139,13 @@ function Reader() {
           >
             <Download />
           </Button>
+          <Button
+            variant={listen ? "secondary" : "outline"}
+            onClick={() => setListen((value) => !value)}
+            aria-pressed={listen}
+          >
+            <Headphones /> {t("reader.listen")}
+          </Button>
           <Button variant="outline" onClick={() => setShowContents((value) => !value)}>
             {showContents ? <X /> : <List />} {t("reader.contents")}
           </Button>
@@ -148,6 +163,22 @@ function Reader() {
           <Button variant="outline" onClick={() => printBook(book)}>
             <Printer /> PDF
           </Button>
+        </div>
+      )}
+
+      {listen && (
+        <div className="page-width">
+          <ChapterListener
+            chapterIndex={chapterIndex}
+            paragraphs={chapter.paragraphs}
+            autoPlay={listen}
+            hasNext={hasNext}
+            onEnded={() => {
+              if (hasNext) goToChapter(chapterIndex + 1);
+              else setListen(false);
+            }}
+            onStop={() => setListen(false)}
+          />
         </div>
       )}
 
@@ -170,8 +201,7 @@ function Reader() {
                 variant="ghost"
                 className={i === chapterIndex ? "chapter-link selected" : "chapter-link"}
                 onClick={() => {
-                  setChapterIndex(i);
-                  setFinished(false);
+                  goToChapter(i);
                   setShowContents(false);
                 }}
               >
@@ -206,13 +236,20 @@ function Reader() {
           </div>
           <div className="reading-end">
             <span>{t("reader.chapterEnd")}</span>
-            <Button
-              variant={finished ? "secondary" : "outline"}
-              onClick={() => setFinished((value) => !value)}
-            >
-              {finished ? <Check /> : <ArrowRight />}
-              {finished ? t("reader.finished") : t("reader.markRead")}
-            </Button>
+            <div className="reading-end-actions">
+              {hasNext && (
+                <Button variant="outline" onClick={() => goToChapter(chapterIndex + 1)}>
+                  {t("reader.nextChapter")} <ArrowRight />
+                </Button>
+              )}
+              <Button
+                variant={finished ? "secondary" : "outline"}
+                onClick={() => setFinished((value) => !value)}
+              >
+                {finished ? <Check /> : <ArrowRight />}
+                {finished ? t("reader.finished") : t("reader.markRead")}
+              </Button>
+            </div>
           </div>
         </article>
       </div>

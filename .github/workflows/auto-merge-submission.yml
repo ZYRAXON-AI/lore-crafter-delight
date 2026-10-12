@@ -60,6 +60,14 @@ jobs:
               echo "No book file (.txt/.md/.pdf/.epub) in $dir"
               fail=1
             fi
+            if [ -n "$(find "$dir" -maxdepth 1 -type f \( -iname 'cover.*' -o -iname 'icon.*' \) -print -quit)" ]; then
+              echo "Found a cover image in $dir"
+            elif node -e "const fs=require('fs');for(const n of ['meta.json','metadata.json','book.json']){try{const m=JSON.parse(fs.readFileSync(process.argv[1]+'/'+n,'utf8'));if(String(m.cover_url||m.cover||'').trim())process.exit(0)}catch{}}process.exit(1)" "$dir"; then
+              echo "Found a cover_url in $dir metadata"
+            else
+              echo "No cover image (cover.*/icon.*) or cover_url in $dir"
+              fail=1
+            fi
             found_meta=""
             for meta in "$dir"/meta.json "$dir"/metadata.json "$dir"/book.json; do
               [ -f "$meta" ] || continue

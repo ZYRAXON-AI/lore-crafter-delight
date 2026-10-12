@@ -54,8 +54,9 @@ npm run build      # generate + production build
 
 বিস্তারিত নিয়ম: [`pdf-library/README.md`](pdf-library/README.md)।
 
-নিয়ম একটাই বড় কথা: **`pdf-library/<আপনার-বই>/` ফোল্ডারে `meta.json` বাধ্যতামূলক।**
-বাকি সব (বইয়ের টেক্সট বা PDF, প্রচ্ছদ) ঐচ্ছিক, তবে অন্তত একটি বই-ফাইল থাকতে হবে।
+নিয়ম দুটো বড় কথা: **`pdf-library/<আপনার-বই>/` ফোল্ডারে `meta.json` বাধ্যতামূলক,
+আর একটি কভার ছবি (`cover.*`/`icon.*`) বা `cover_url`-ও বাধ্যতামূলক।**
+বইয়ের টেক্সট বা PDF থাকাও জরুরি — এই তিনটি ছাড়া জমা গ্রহণ করা হয় না।
 
 ```sh
 curl -X POST https://<your-site>/api/books \
