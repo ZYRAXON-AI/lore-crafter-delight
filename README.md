@@ -1,82 +1,154 @@
 # Lore Crafter Delight
 
-একটি অ্যানিমেটেড বাংলা ডিজিটাল লাইব্রেরি — **৬০টি পূর্ণদৈর্ঘ্য উপন্যাস**, দশটি ঘরানায়,
-সবই বাংলায়। পড়া যায় ব্রাউজারে, ডাউনলোড করা যায় TXT/HTML/PDF-এ।
+> An animated digital library — 60 full-length novels you can read and listen to.
 
-**Live app**: https://lore-crafter-delight.lovable.app
+**Live app**: https://lore-crafter-delight.lovable.app · **Repository**: https://github.com/zyraxon-X/lore-crafter-delight
 
-## এই সংস্করণে কী আছে
+## 🌍 Read this in your language
 
-- **৬০টি বই, ১০টি ঘরানা** — ভূত, প্রেম, রহস্য, ফ্যান্টাসি, অভিযান, বিজ্ঞান কল্পকাহিনি,
-  হরর-রোম্যান্স, হাস্যরস, সামাজিক, অন্যান্য।
-- **প্রতি অধ্যায় ১৫–২০ পৃষ্ঠা** — প্রতি অধ্যায় ≈ ৫,০০০ শব্দ; প্রতিটি বই ৮–১২ অধ্যায়ের।
-- **লেজি-লোড আর্কিটেকচার** — প্রতি বই আলাদা `src/content/books/<id>.json` ফাইলে; শুধু হালকা
-  `src/lib/book-index.json` তালিকা প্রথমে লোড হয়, তাই লাইব্রেরি দ্রুত খোলে।
-- **কমিউনিটি জমা** — যে কেউ `pdf-library/` ফোল্ডারে নিজের নামে সাবফোল্ডারে
-  `meta.json` ও বই রেখে PR দিলে, অটো-মার্জ ওয়ার্কফ্লো নিজেই মার্জ করে দেয়;
-  অথবা এজেন্ট থেকে `POST /api/books` দিয়ে পাঠানো যায়।
-- **দ্বিভাষিক** — বাংলা ও ইংরেজি ইন্টারফেস (BN↔EN)।
-- **এক্সপোর্ট** — TXT, HTML ও প্রিন্ট/PDF।
+Forty languages are available. Pick yours — every file teaches how to upload your
+book, and **you may submit a book in any language and any script**, not just
+Bangla or English.
 
-## ডেভেলপমেন্ট
+- **English** &nbsp;·&nbsp; `README.en.md`
+- [বাংলা](README.bn.md) &nbsp;·&nbsp; `README.bn.md`
+- [हिन्दी](README.hi.md) &nbsp;·&nbsp; `README.hi.md`
+- [اردو](README.ur.md) &nbsp;·&nbsp; `README.ur.md`
+- [العربية](README.ar.md) &nbsp;·&nbsp; `README.ar.md`
+- [فارسی](README.fa.md) &nbsp;·&nbsp; `README.fa.md`
+- [Türkçe](README.tr.md) &nbsp;·&nbsp; `README.tr.md`
+- [Bahasa Indonesia](README.id.md) &nbsp;·&nbsp; `README.id.md`
+- [Bahasa Melayu](README.ms.md) &nbsp;·&nbsp; `README.ms.md`
+- [ไทย](README.th.md) &nbsp;·&nbsp; `README.th.md`
+- [Tiếng Việt](README.vi.md) &nbsp;·&nbsp; `README.vi.md`
+- [简体中文](README.zh.md) &nbsp;·&nbsp; `README.zh.md`
+- [日本語](README.ja.md) &nbsp;·&nbsp; `README.ja.md`
+- [한국어](README.ko.md) &nbsp;·&nbsp; `README.ko.md`
+- [Русский](README.ru.md) &nbsp;·&nbsp; `README.ru.md`
+- [Українська](README.uk.md) &nbsp;·&nbsp; `README.uk.md`
+- [Deutsch](README.de.md) &nbsp;·&nbsp; `README.de.md`
+- [Français](README.fr.md) &nbsp;·&nbsp; `README.fr.md`
+- [Español](README.es.md) &nbsp;·&nbsp; `README.es.md`
+- [Português](README.pt.md) &nbsp;·&nbsp; `README.pt.md`
+- [Italiano](README.it.md) &nbsp;·&nbsp; `README.it.md`
+- [Nederlands](README.nl.md) &nbsp;·&nbsp; `README.nl.md`
+- [Polski](README.pl.md) &nbsp;·&nbsp; `README.pl.md`
+- [Svenska](README.sv.md) &nbsp;·&nbsp; `README.sv.md`
+- [Dansk](README.da.md) &nbsp;·&nbsp; `README.da.md`
+- [Norsk](README.nb.md) &nbsp;·&nbsp; `README.nb.md`
+- [Suomi](README.fi.md) &nbsp;·&nbsp; `README.fi.md`
+- [Čeština](README.cs.md) &nbsp;·&nbsp; `README.cs.md`
+- [Ελληνικά](README.el.md) &nbsp;·&nbsp; `README.el.md`
+- [עברית](README.he.md) &nbsp;·&nbsp; `README.he.md`
+- [Română](README.ro.md) &nbsp;·&nbsp; `README.ro.md`
+- [Magyar](README.hu.md) &nbsp;·&nbsp; `README.hu.md`
+- [Kiswahili](README.sw.md) &nbsp;·&nbsp; `README.sw.md`
+- [አማርኛ](README.am.md) &nbsp;·&nbsp; `README.am.md`
+- [Hausa](README.ha.md) &nbsp;·&nbsp; `README.ha.md`
+- [Yorùbá](README.yo.md) &nbsp;·&nbsp; `README.yo.md`
+- [தமிழ்](README.ta.md) &nbsp;·&nbsp; `README.ta.md`
+- [తెలుగు](README.te.md) &nbsp;·&nbsp; `README.te.md`
+- [मराठी](README.mr.md) &nbsp;·&nbsp; `README.mr.md`
+- [नेपाली](README.ne.md) &nbsp;·&nbsp; `README.ne.md`
 
-Node.js ও npm দরকার। তারপর:
+## How to add your PDF or book
+
+1. Fork this repository (or clone it).
+2. Create a folder: `pdf-library/<your-name>/`.
+3. Inside it put your book (`book.txt`, `book.md` or `book.pdf`), a `meta.json` that has a `title`, and a cover image (`cover.png` / `cover.svg`).
+4. Commit and open a Pull Request.
+5. The auto-merge bot checks it and your book appears on the site within minutes — no redeploy.
+
+## Write in any language
+
+You are not limited to Bangla or English. Submit a book in any language and any script — Bangla, Hindi, Arabic, Chinese, Swahili, anything. The site shows your text exactly as you wrote it.
+
+## Full rules
+
+Read the detailed, step-by-step rules in [`pdf-library/README.md`](pdf-library/README.md).
+There is also a quick translated guide for each of the forty languages below.
+
+## What is inside
+
+- **60 books, 10 genres** — ghost, romance, mystery, fantasy, adventure, science
+  fiction, horror-romance, comedy, social, other.
+- **15–20 pages per chapter** — about 5,000 words each; every book has 8–12 chapters.
+- **Lazy-load architecture** — each book is its own `src/content/books/<id>.json`;
+  only the light `src/lib/book-index.json` loads first, so the library opens fast.
+- **Community submissions** — anyone can add a book under `pdf-library/<name>/`
+  and open a PR; an auto-merge workflow publishes it. Or POST to `/api/books`.
+- **Read aloud** — the reader can speak a chapter with your browser's voice.
+- **Export** — TXT, HTML and print/PDF.
+
+## Development
+
+Needs Node.js and npm. Then:
 
 ```sh
 npm i
-npm run generate   # ৬০টি বই নতুন করে লিখে src/content/books/ বানায়
+npm run generate   # rebuild all 60 books under src/content/books/
 npm run dev        # http://localhost:8080
 ```
 
-অন্য কমান্ড:
+Other commands: `npm test`, `npm run lint`, `npm run build`.
 
-```sh
-npm test           # vitest
-npm run lint       # eslint
-npm run build      # generate + production build
-```
+## Contributing a book
 
-`npm run build` প্রথমে `tools/generate-manuscripts.mjs` চালায়, যেটি ইঞ্জিন থেকে
-৬০টি বই তৈরি করে `src/content/books/*.json` ও `src/lib/book-index.json` লেখে।
-
-গল্পের উৎস তিন স্তরে থাকে:
-
-| ফাইল                              | কী দেয়                                                       |
-| --------------------------------- | ------------------------------------------------------------ |
-| `tools/seed-books.json`           | মূল ত্রিশটি বইয়ের শিরোনাম ও রূপরেখা                          |
-| `tools/generate-manuscripts.mjs`  | পরের পনেরোটি হরর-রোম্যান্স বই                                |
-| `tools/extra-books.mjs`           | নতুন পনেরোটি পূর্ণদৈর্ঘ্য বই — প্রেম, সামাজিক ও হাস্যরস       |
-| `tools/manuscript-engine.mjs`     | জেনারেটর ইঞ্জিন: আবহ, সংলাপ ও আখ্যানের ছন্দ                  |
-| `tools/manuscript-sections.mjs`   | অধ্যায়কে ১৫–২০ পৃষ্ঠায় টেনে নেওয়ার দুই স্তরের গদ্য          |
-| `tools/manuscript-deep.mjs`       | অধ্যায়ের শেষ স্তর, যা প্রতিটি বইকে উপন্যাসের ওজন দেয়        |
-
-## বই জমা দেওয়ার ব্যবস্থা
-
-বিস্তারিত নিয়ম: [`pdf-library/README.md`](pdf-library/README.md)।
-
-নিয়ম দুটো বড় কথা: **`pdf-library/<আপনার-বই>/` ফোল্ডারে `meta.json` বাধ্যতামূলক,
-আর একটি কভার ছবি (`cover.*`/`icon.*`) বা `cover_url`-ও বাধ্যতামূলক।**
-বইয়ের টেক্সট বা PDF থাকাও জরুরি — এই তিনটি ছাড়া জমা গ্রহণ করা হয় না।
+See [`pdf-library/README.md`](pdf-library/README.md). A `meta.json` with a title
+and a cover image are both compulsory.
 
 ```sh
 curl -X POST https://<your-site>/api/books \
   -H 'content-type: application/json' \
-  -d '{
-    "title": "আমার ভয়", "author": "আপনার নাম",
-    "genre": "ভূত", "description": "ছোট পরিচিতি।",
-    "book": "অধ্যায় ১: শুরু\n\n..."
-  }'
+  -d '{ "title": "আমার ভয়", "author": "আপনার নাম", "genre": "ভূত", "book": "..." }'
 ```
 
-সার্ভারে `GITHUB_TOKEN` থাকলে API নিজেই `pdf-library/<slug>/` ব্রাঞ্চ, কমিট ও পুল
-রিকোয়েস্ট বানায়; টোকেন না থাকলে যাচাই করা `meta.json` ও `book.txt` ফেরত দেয়।
+## Tech
 
-## প্রযুক্তি
-
-TanStack Start + React 19 + TypeScript + Tailwind CSS। ডেটা জেনারেশন ওয়েব অ্যাপের
-বাইরে সাধারণ Node স্ক্রিপ্টে (`tools/`) হয়, তাই কনটেন্ট আর কোড আলাদা থাকে।
+TanStack Start + React 19 + TypeScript + Tailwind CSS. Content generation runs
+outside the web app, in plain Node scripts under `tools/`.
 
 ---
 
-This project was originally scaffolded with [Lovable](https://lovable.dev) and now
-runs as a standalone TanStack Start app.
+## 🌐 Language index (40 files)
+
+- **English** &nbsp;·&nbsp; `README.en.md`
+- [বাংলা](README.bn.md) &nbsp;·&nbsp; `README.bn.md`
+- [हिन्दी](README.hi.md) &nbsp;·&nbsp; `README.hi.md`
+- [اردو](README.ur.md) &nbsp;·&nbsp; `README.ur.md`
+- [العربية](README.ar.md) &nbsp;·&nbsp; `README.ar.md`
+- [فارسی](README.fa.md) &nbsp;·&nbsp; `README.fa.md`
+- [Türkçe](README.tr.md) &nbsp;·&nbsp; `README.tr.md`
+- [Bahasa Indonesia](README.id.md) &nbsp;·&nbsp; `README.id.md`
+- [Bahasa Melayu](README.ms.md) &nbsp;·&nbsp; `README.ms.md`
+- [ไทย](README.th.md) &nbsp;·&nbsp; `README.th.md`
+- [Tiếng Việt](README.vi.md) &nbsp;·&nbsp; `README.vi.md`
+- [简体中文](README.zh.md) &nbsp;·&nbsp; `README.zh.md`
+- [日本語](README.ja.md) &nbsp;·&nbsp; `README.ja.md`
+- [한국어](README.ko.md) &nbsp;·&nbsp; `README.ko.md`
+- [Русский](README.ru.md) &nbsp;·&nbsp; `README.ru.md`
+- [Українська](README.uk.md) &nbsp;·&nbsp; `README.uk.md`
+- [Deutsch](README.de.md) &nbsp;·&nbsp; `README.de.md`
+- [Français](README.fr.md) &nbsp;·&nbsp; `README.fr.md`
+- [Español](README.es.md) &nbsp;·&nbsp; `README.es.md`
+- [Português](README.pt.md) &nbsp;·&nbsp; `README.pt.md`
+- [Italiano](README.it.md) &nbsp;·&nbsp; `README.it.md`
+- [Nederlands](README.nl.md) &nbsp;·&nbsp; `README.nl.md`
+- [Polski](README.pl.md) &nbsp;·&nbsp; `README.pl.md`
+- [Svenska](README.sv.md) &nbsp;·&nbsp; `README.sv.md`
+- [Dansk](README.da.md) &nbsp;·&nbsp; `README.da.md`
+- [Norsk](README.nb.md) &nbsp;·&nbsp; `README.nb.md`
+- [Suomi](README.fi.md) &nbsp;·&nbsp; `README.fi.md`
+- [Čeština](README.cs.md) &nbsp;·&nbsp; `README.cs.md`
+- [Ελληνικά](README.el.md) &nbsp;·&nbsp; `README.el.md`
+- [עברית](README.he.md) &nbsp;·&nbsp; `README.he.md`
+- [Română](README.ro.md) &nbsp;·&nbsp; `README.ro.md`
+- [Magyar](README.hu.md) &nbsp;·&nbsp; `README.hu.md`
+- [Kiswahili](README.sw.md) &nbsp;·&nbsp; `README.sw.md`
+- [አማርኛ](README.am.md) &nbsp;·&nbsp; `README.am.md`
+- [Hausa](README.ha.md) &nbsp;·&nbsp; `README.ha.md`
+- [Yorùbá](README.yo.md) &nbsp;·&nbsp; `README.yo.md`
+- [தமிழ்](README.ta.md) &nbsp;·&nbsp; `README.ta.md`
+- [తెలుగు](README.te.md) &nbsp;·&nbsp; `README.te.md`
+- [मराठी](README.mr.md) &nbsp;·&nbsp; `README.mr.md`
+- [नेपाली](README.ne.md) &nbsp;·&nbsp; `README.ne.md`
