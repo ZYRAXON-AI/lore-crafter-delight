@@ -16,7 +16,10 @@ describe('Requested book collection', () => {
   it('provides substantive chapter-based openings rather than complete short tales', () => {
     for (const book of manuscripts) {
       expect(book.outline.length).toBeGreaterThan(book.chapters.length);
-      expect(book.chapters[0].paragraphs.join(' ').split(/\s+/).length).toBeGreaterThanOrEqual(300);
+      const opening = book.chapters[0];
+      expect(opening).toBeDefined();
+      if (!opening) throw new Error(`Missing chapter for ${book.title}`);
+      expect(opening.paragraphs.join(' ').split(/\s+/).length).toBeGreaterThanOrEqual(300);
     }
   });
 });
