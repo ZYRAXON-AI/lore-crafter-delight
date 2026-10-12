@@ -14,9 +14,11 @@
 - Keep fiction manuscripts as typed static content separate from library and reader routes, so writing can be extended without changing presentation.
 - Use individual bundled cover illustrations in a shared BookCover component, so the collection and reading pages share each book's visual identity.
 - Represent manuscript availability from actual chapter data rather than planned length, so unfinished books cannot appear complete.
-- Read community submissions live from the `books-submission/` folder in this repository at runtime (see `src/lib/community-books.server.ts`), instead of a build-time ingest, so published books appear without a redeploy.
-- Regenerate manuscripts with `node tools/generate-manuscripts.mjs`; it rebuilds all 45 books from `tools/seed-books.json` and writes one file per book under `src/content/books/` plus `src/lib/book-index.json`, so reruns are idempotent and never depend on previous output.
+- Read community submissions live from the `pdf-library/` folder in this repository at runtime (see `src/lib/community-books.server.ts`), instead of a build-time ingest, so published books appear without a redeploy. The older `books-submission/` folder is still read for backwards compatibility.
+- Require a `meta.json` (or `metadata.json`/`book.json`) with at least `title` in every submission folder; author, genre and description fall back to values derived from the manuscript, but the title never does.
+- Regenerate manuscripts with `node tools/generate-manuscripts.mjs`; it rebuilds all 60 books from `tools/seed-books.json` (thirty seeds), the horror-romance block in the generator, and `tools/extra-books.mjs` (fifteen romance/social/comedy novels), writing one file per book under `src/content/books/` plus `src/lib/book-index.json`, so reruns are idempotent.
+- Keep each chapter at roughly five thousand words (fifteen to twenty printed pages); the prose layers live in `tools/manuscript-sections.mjs` and `tools/manuscript-deep.mjs`, and `buildBook` accepts any number of chapters.
 - Read a single book on demand with `loadBook(id)` from `src/lib/manuscripts.ts`; never import a whole-collection JSON into a route, or the client bundle balloons.
 - Keep `Book` and `BookSummary` types in `src/lib/book-types.ts` (re-exported from `books.ts`) so server loaders and components can share them without circular imports.
-- Accept community submissions either as a `books-submission/<slug>/` folder or via `POST /api/books` (`src/lib/book-submission.ts` validates both); the `auto-merge-submission.yml` workflow merges folder-only PRs automatically.
+- Accept community submissions either as a `pdf-library/<slug>/` folder or via `POST /api/books` (`src/lib/book-submission.ts` validates both); the `auto-merge-submission.yml` workflow merges folder-only, meta-valid PRs automatically.
 - Route all interface copy through `src/lib/i18n.tsx` (`useLanguage().t`); book prose itself is never translated.
