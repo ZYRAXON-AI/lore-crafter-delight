@@ -5,6 +5,7 @@
 // to rewrite src/lib/manuscripts.json with full-length chapter manuscripts.
 
 import { extraParagraphs, deeperParagraphs } from "./manuscript-sections.mjs";
+import { deepestParagraphs } from "./manuscript-deep.mjs";
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 export const bn = (value) => String(value).replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
 
@@ -349,6 +350,106 @@ const PALETTES = {
       "শেষ হয়ে আসা মোমবাতি",
     ],
   },
+  হাস্যরস: {
+    time: [
+      "সকালের চা",
+      "দুপুরের খাওয়ার পর",
+      "বিকেলের গল্প",
+      "সন্ধ্যার আড্ডা",
+      "রাতের হাসি",
+      "বাজারের ভিড়ে",
+    ],
+    weather: [
+      "রোদ আর ঘাম",
+      "হালকা বাতাস",
+      "গরমের ছ্যাঁকা",
+      "বৃষ্টির ফোঁটা",
+      "শুকনো হাওয়া",
+      "ধুলার ঝড়",
+    ],
+    sound: [
+      "হাসির ফোয়ারা",
+      "খালি পেটের খলখল",
+      "পাড়ার রেডিও",
+      "উঠোনের চেঁচামেচি",
+      "রিকশার ঘণ্টা",
+      "কাকের ডাক",
+    ],
+    light: [
+      "কড়া রোদ",
+      "কুড়কুড়ে আলো",
+      "বিকেলের রোদ",
+      "টিউবলাইটের ঝলক",
+      "দুপুরের ঝলসানি",
+      "সন্ধ্যার ম্লান",
+    ],
+    feeling: [
+      "হাসিতে পেট ফেটে যাচ্ছে",
+      "লজ্জায় মুখ লাল হচ্ছে",
+      "পেটের খিদে আর হাসি যুঝছে",
+      "নাক চুলকাচ্ছে",
+      "চোখে জল এসে গেছে হাসিতে",
+      "ভুরু কুঁচকে যাচ্ছে",
+    ],
+    detail: [
+      "ছেঁড়া চটি একজোড়া",
+      "ঠোঙায় ভাজা মুড়ি",
+      "উল্টো পড়ে থাকা বালতি",
+      "হাতা ছেঁড়া গেঞ্জি",
+      "দেওয়ালে আঁকা কৌতুক",
+      "টেবিলে ঠান্ডা চা",
+    ],
+  },
+  সামাজিক: {
+    time: [
+      "ভোরের মজুরি",
+      "দুপুরের রোদ",
+      "সন্ধ্যার ক্লান্তি",
+      "রাতের হিসেব",
+      "ভোরের বাস",
+      "মাঝরাতের ছুট",
+    ],
+    weather: [
+      "ধুলো আর ঘাম",
+      "ভ্যাপসা গরম",
+      "বৃষ্টির কাদা",
+      "শীতের কামড়",
+      "লোডশেডিং আন্ধার",
+      "নোনা হাওয়া",
+    ],
+    sound: [
+      "কলকারখানার ধাতব শব্দ",
+      "হকারের ডাক",
+      "বাসের হর্ন",
+      "ঘুমন্ত পাড়ার চাপা কথা",
+      "প্রতিবেশীর ঝগড়া",
+      "মাইকের ঘোষণা",
+    ],
+    light: [
+      "কড়া রোদ",
+      "টিউববাতির আলো",
+      "মোমের ঠিকানা",
+      "ফ্ল্যাশলাইটের রশ্মি",
+      "ভোরের ধূসর",
+      "লোডশেডিংয়ের অন্ধকার",
+    ],
+    feeling: [
+      "পেটে খিদের জ্বালা",
+      "ক্লান্তিতে পা ভারী",
+      "বুকের ভেতর হিসেবের চাপ",
+      "লজ্জা আর গর্ব যুঝছে",
+      "হাতের মুঠো শক্ত",
+      "চোখে ঘুম নেই",
+    ],
+    detail: [
+      "টানাটানির হিসাবের খাতা",
+      "ছেঁড়া নোট",
+      "প্লাস্টিকের ব্যাগ",
+      "টিনের চালার ফুটো",
+      "একগ্লাস ঠান্ডা পানি",
+      "পুরনো রেডিও",
+    ],
+  },
 };
 
 const pick = (list, seed) => list[seed % list.length];
@@ -460,27 +561,35 @@ export function paragraphSet(book, chapterIndex) {
   // chapters do not open on the same beat as their neighbour.
   const extra = extraParagraphs(book, p, pick, seed);
   const deeper = deeperParagraphs(book, p, pick, seed);
+  const deepest = deepestParagraphs(book, p, pick, seed);
   const rotate = (list) => {
     const at = (chapterIndex * 5) % list.length;
     return [...list.slice(at), ...list.slice(0, at)];
   };
-  return [...paras, ...rotate(extra), ...rotate(deeper)];
+  return [...paras, ...rotate(extra), ...rotate(deeper), ...rotate(deepest)];
 }
 
 export function buildBook(profile, openingParagraphs) {
-  const chapters = BEATS.map((_, index) => {
+  const outline = profile.outline ?? [];
+  // A book may have any number of chapters. When there are fewer than the eight
+  // narrative beats, the remaining beats are appended so the arc still resolves;
+  // when there are more, extra chapters reuse beats with a fresh rotation, which
+  // is what makes a fifty to sixty page chapter possible.
+  const count = Math.max(outline.length, BEATS.length);
+  const chapters = Array.from({ length: count }, (_, index) => {
+    const title = outline[index] ?? `${BEATS[index % BEATS.length]} (${bn(index + 1)})`;
     const paragraphs =
       index === 0 && openingParagraphs?.length
         ? [...openingParagraphs, ...paragraphSet(profile, 0).slice(1)]
         : paragraphSet(profile, index);
-    return { title: profile.outline[index] ?? `অধ্যায় ${bn(index + 1)}`, paragraphs };
+    return { title, paragraphs };
   });
   return {
     id: profile.id,
     title: profile.title,
     genre: profile.genre,
     subtitle: profile.subtitle,
-    outline: profile.outline,
+    outline,
     chapters,
   };
 }

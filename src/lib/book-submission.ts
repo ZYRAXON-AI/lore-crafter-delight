@@ -1,4 +1,4 @@
-import { COMMUNITY_GENRES } from "./community-parse";
+import { deriveMeta } from "./community-parse";
 
 // Shape of a book payload sent by any agent or person to POST /api/books.
 // `book` may be either plain text (split into chapters) or an already split
@@ -166,23 +166,7 @@ export function validateSubmission(payload: BookPayload): ValidatedSubmission {
   const author = clean(payload.author);
   const genre = clean(payload.genre);
   const description = clean(payload.description, 1200);
-  const language = clean(payload.language) || "বাংলা";
-
-  const missing = [
-    ["title", title],
-    ["author", author],
-    ["genre", genre],
-    ["description", description],
-  ]
-    .filter(([, value]) => !value)
-    .map(([field]) => field);
-  if (missing.length) {
-    throw new SubmissionError(`এই ঘরগুলো দরকার: ${missing.join(", ")}।`);
-  }
-
-  if (!(COMMUNITY_GENRES as readonly string[]).includes(genre)) {
-    throw new SubmissionError(`ঘরানা হতে হবে: ${COMMUNITY_GENRES.join(", ")}।`);
-  }
+  const language = clean(payload.language) || "";
 
   const { text, chapters } = normalizeBook(payload);
   const words = countWords(text);
@@ -190,17 +174,21 @@ export function validateSubmission(payload: BookPayload): ValidatedSubmission {
     throw new SubmissionError("বইটি খুব ছোট—কমপক্ষে ২০০ শব্দ দিন।");
   }
 
-  const slug = payload.slug && SLUG.test(payload.slug) ? payload.slug : slugify(title);
+  const slug = payload.slug && SLUG.test(payload.slug) ? payload.slug : slugify(title || text);
+
+  // Anything the payload left out is derived from the manuscript, so a caller
+  // may POST only text and still get a complete, publishable meta.json.
+  const meta = deriveMeta(slug, { title, author, genre, description, language }, text);
 
   return {
     slug,
     meta: {
-      title,
-      author,
-      genre,
-      description,
+      title: meta.title,
+      author: meta.author,
+      genre: meta.genre,
+      description: meta.description,
       cover_url: clean(payload.coverUrl, 500),
-      language,
+      language: meta.language,
     },
     bookText: text,
     chapterCount: chapters,

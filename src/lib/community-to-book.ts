@@ -15,9 +15,11 @@ export function toLibraryBook(entry: CommunityBook, index: number): Book {
     description: entry.description,
     language: entry.language,
   };
-  // exactOptionalPropertyTypes forbids assigning an explicit undefined, so the
-  // cover is only attached when the submission actually provided one.
+  // exactOptionalPropertyTypes forbids assigning an explicit undefined, so these
+  // are only attached when the submission actually provided them.
   if (entry.coverUrl) book.coverUrl = entry.coverUrl;
+  if (entry.pdfUrl) book.pdfUrl = entry.pdfUrl;
+  if (entry.sourceFile) book.sourceFile = entry.sourceFile;
   return book;
 }
 

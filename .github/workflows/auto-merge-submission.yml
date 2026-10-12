@@ -1,8 +1,10 @@
-name: Auto-merge book submissions
+name: Auto-merge library submissions
 
-# A submission PR only adds a folder under books-submission/. Once every changed
-# file sits in that folder and the book payload validates, the PR is labelled
-# and merged automatically so the library picks it up without a rebuild.
+# A submission pull request only adds a folder under pdf-library/ (the older
+# books-submission/ path is still accepted). Every changed file must sit inside
+# one of those folders and at least one book file or manuscript must be present;
+# then the PR is labelled and merged automatically, so merged books appear on the
+# site immediately with no rebuild.
 
 on:
   pull_request:
@@ -22,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check the pull request only touches books-submission
+      - name: Check the pull request only touches a library folder
         id: scope
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
@@ -30,34 +32,45 @@ jobs:
         run: |
           changed=$(git diff --name-only "$BASE" "$HEAD")
           echo "$changed"
-          if [ -z "$changed" ] || echo "$changed" | grep -qvE '^books-submission/'; then
+          if [ -z "$changed" ] || echo "$changed" | grep -qvE '^(pdf-library|books-submission)/'; then
             echo "in_scope=false" >> "$GITHUB_OUTPUT"
           else
             echo "in_scope=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Validate every meta.json in the pull request
+      - name: Validate each submission folder
         if: steps.scope.outputs.in_scope == 'true'
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           fail=0
-          for meta in $(git diff --name-only "$BASE" "$HEAD" | grep -E '^books-submission/[^/]+/meta\.json$'); do
-            if [ ! -f "$meta" ]; then continue; fi
-            if ! node -e "
-              const fs = require('fs');
-              const meta = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
-              const required = ['title', 'author', 'genre', 'description'];
-              const missing = required.filter((key) => !String(meta[key] ?? '').trim());
-              if (missing.length) { console.error('missing', missing.join(',')); process.exit(1); }
-            " "$meta"; then
-              echo "Invalid meta.json: $meta"
+          # meta.json is mandatory: every submission folder must carry one, and
+          # it must be valid JSON with a non-empty title. A manuscript file is
+          # also required. Optional metadata fields (author, genre, description)
+          # are derived by the site when absent.
+          dirs=$(git diff --name-only "$BASE" "$HEAD" \
+            | grep -E '^(pdf-library|books-submission)/[^/]+/' \
+            | sed -E 's#^((pdf-library|books-submission)/[^/]+)/.*#\1#' | sort -u)
+          for dir in $dirs; do
+            if [ ! -d "$dir" ]; then continue; fi
+            if [ -n "$(find "$dir" -maxdepth 1 -type f \( -name '*.txt' -o -name '*.md' -o -name '*.pdf' -o -name '*.epub' \) -print -quit)" ]; then
+              echo "Found a book file in $dir"
+            else
+              echo "No book file (.txt/.md/.pdf/.epub) in $dir"
               fail=1
             fi
-            dir=$(dirname "$meta")
-            if ! ls "$dir"/book*.txt >/dev/null 2>&1; then
-              echo "No book text found next to $meta"
+            found_meta=""
+            for meta in "$dir"/meta.json "$dir"/metadata.json "$dir"/book.json; do
+              [ -f "$meta" ] || continue
+              found_meta="$meta"
+              if ! node -e "const m=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); if(!m.title||!String(m.title).trim()) process.exit(2)" "$meta"; then
+                echo "Invalid or untitled metadata: $meta"
+                fail=1
+              fi
+            done
+            if [ -z "$found_meta" ]; then
+              echo "Missing meta.json (mandatory) in $dir"
               fail=1
             fi
           done
@@ -69,6 +82,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          gh label create submission --color 0e8a16 --description "Community book submission" || true
+          gh label create submission --color 0e8a16 --description "Community library submission" || true
           gh pr edit "$PR" --add-label "submission" || true
           gh pr merge "$PR" --squash --delete-branch

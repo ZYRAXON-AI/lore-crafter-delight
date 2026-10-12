@@ -79,7 +79,15 @@ function Reader() {
         <div className="page-width reading-sheet">
           <h1>{book.title}</h1>
           <p className="reader-subtitle">{book.subtitle}</p>
-          <p className="manuscript-note">{t("community.coverOnly")}</p>
+          {book.pdfUrl ? (
+            <p className="manuscript-note">
+              <a href={book.pdfUrl} target="_blank" rel="noreferrer">
+                <FileText size={16} /> {book.sourceFile ?? "PDF"} {t("reader.openFile")}
+              </a>
+            </p>
+          ) : (
+            <p className="manuscript-note">{t("community.coverOnly")}</p>
+          )}
         </div>
       </div>
     );

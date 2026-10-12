@@ -9,6 +9,9 @@ export const genres = [
   "অভিযান",
   "বিজ্ঞান কল্পকাহিনি",
   "হরর-রোম্যান্স",
+  "হাস্যরস",
+  "সামাজিক",
+  "অন্যান্য",
 ] as const;
 
 export const bn = (value: number) => value.toLocaleString("bn-BD");

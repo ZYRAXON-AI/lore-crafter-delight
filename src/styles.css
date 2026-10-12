@@ -864,6 +864,18 @@ html {
   --story-accent: oklch(0.4 0.14 12);
   --story-paper: oklch(0.97 0.01 15);
 }
+.genre-7 {
+  --story-accent: oklch(0.55 0.14 85);
+  --story-paper: oklch(0.99 0.015 85);
+}
+.genre-8 {
+  --story-accent: oklch(0.42 0.08 45);
+  --story-paper: oklch(0.985 0.012 60);
+}
+.genre-9 {
+  --story-accent: oklch(0.4 0.05 250);
+  --story-paper: oklch(0.98 0.006 250);
+}
 
 .cover-fallback {
   position: absolute;
