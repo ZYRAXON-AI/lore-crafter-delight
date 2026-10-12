@@ -1,26 +1,67 @@
 # Lore Crafter Delight
 
-ধরো অ্যানিমেটেড এবং প্রত্যেকটা যে বই থাকবে, মানে আমাকে একটা গল্পের বই থাকবে। এবং তুমি একটা স্লিপ লিপ বা একটা স্লিপে তিরিশ টা বই তৈরি হবে; প্রায় এক হাজার পেজের একেকটা। মানে একটা এমন পাওয়ারফুলি স্লিপ লিখে রান করো বা যে উম তিরিশটা বই তৈরি হবে, ভিতরে কোনোটার সাথে কোনোটার মিলবে; তো ঠিক আছেই। এতটা ভয়ংকর, এতটা সুন্দর, এতটা প্রেমিময় মানে একেক একেক বই একেকটার হবে যেমন পাঁচটা ভূতের, পাঁচটা ভালোবাসা রোম্যান্টিক। মানে এমন একটা স্লিপ লিখে রান করবা, যে এতটা সুন্দর গল্প তৈরি হবে যা বলার বাইরে। এরকম এবং ভিতরে যে বইগুলো থাকবে সেগুলো দেখতেও মানে ওই বই অনুযায়ী ভিতরের ডিজাইনটা হবে। মানে পিডিএফ মানে পিডিএফ না করলেও চলবে, যেভাবে করা লাগে করো
-
-This project was built with [Lovable](https://lovable.dev).
+একটি অ্যানিমেটেড বাংলা ডিজিটাল লাইব্রেরি — ৪৫টি পূর্ণদৈর্ঘ্য উপন্যাস, সাতটি ঘরানায়,
+সবই বাংলায়। পড়া যায় ব্রাউজারে, ডাউনলোড করা যায় TXT/HTML/PDF-এ।
 
 **Live app**: https://lore-crafter-delight.lovable.app
 
-## Build with Lovable
+## এই সংস্করণে কী আছে
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/4f04e551-db00-40d2-9da7-2c4cd6c7869b).
+- **৪৫টি বই, ৭টি ঘরানা** — ভূত, প্রেম, রহস্য, ফ্যান্টাসি, অভিযান, বিজ্ঞান কল্পকাহিনি, হরর-রোম্যান্স।
+- **প্রতি অধ্যায় ১৫–২০ পৃষ্ঠা** — মোট ~১৩.৬ লক্ষ শব্দ, প্রতিটি বই আট অধ্যায়ের।
+- **লেজি-লোড আর্কিটেকচার** — প্রতি বই আলাদা `src/content/books/<id>.json` ফাইলে; শুধু হালকা
+  `src/lib/book-index.json` তালিকা প্রথমে লোড হয়, তাই লাইব্রেরি দ্রুত খোলে।
+- **কমিউনিটি জমা** — যে কেউ `books-submission/` ফোল্ডারে বই দিতে পারেন, বা `POST /api/books`
+  দিয়ে এজেন্ট থেকে পাঠাতে পারেন; অটো-মার্জ ওয়ার্কফ্লো PR মার্জ করে দেয়।
+- **দ্বিভাষিক** — বাংলা ও ইংরেজি ইন্টারফেস (BN↔EN)।
+- **এক্সপোর্ট** — TXT, HTML ও প্রিন্ট/PDF।
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+## ডেভেলপমেন্ট
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Node.js ও npm দরকার। তারপর:
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
 npm i
-npm run dev
+npm run generate   # ৪৫টি বই নতুন করে লিখে src/content/books/ বানায়
+npm run dev        # http://localhost:8080
 ```
+
+অন্য কমান্ড:
+
+```sh
+npm test           # vitest
+npm run lint       # eslint
+npm run build      # generate + production build
+```
+
+`npm run build` প্রথমে `tools/generate-manuscripts.mjs` চালায়, যেটি ইঞ্জিন থেকে
+৪৫টি বই তৈরি করে `src/content/books/*.json` ও `src/lib/book-index.json` লেখে।
+`tools/seed-books.json`-এ মূল ত্রিশটি বইয়ের শিরোনাম ও রূপরেখা থাকে; বাকি পনেরোটি
+হরর-রোম্যান্স বই জেনারেটরে যোগ করা।
+
+## বই জমা দেওয়ার ব্যবস্থা
+
+বিস্তারিত নিয়ম: [`books-submission/README.md`](books-submission/README.md)।
+
+```sh
+curl -X POST https://<your-site>/api/books \
+  -H 'content-type: application/json' \
+  -d '{
+    "title": "আমার ভয়", "author": "আপনার নাম",
+    "genre": "ভূত", "description": "ছোট পরিচিতি।",
+    "book": "অধ্যায় ১: শুরু\n\n..."
+  }'
+```
+
+সার্ভারে `GITHUB_TOKEN` থাকলে API নিজেই ব্রাঞ্চ, কমিট ও পুল রিকোয়েস্ট বানায়;
+টোকেন না থাকলে যাচাই করা `meta.json` ও `book.txt` ফেরত দেয়।
+
+## প্রযুক্তি
+
+TanStack Start + React 19 + TypeScript + Tailwind CSS। ডেটা জেনারেশন ওয়েব অ্যাপের
+বাইরে সাধারণ Node স্ক্রিপ্টে (`tools/`) হয়, তাই কনটেন্ট আর কোড আলাদা থাকে।
+
+---
+
+This project was originally scaffolded with [Lovable](https://lovable.dev) and now
+runs as a standalone TanStack Start app.

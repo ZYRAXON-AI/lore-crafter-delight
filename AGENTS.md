@@ -12,3 +12,7 @@
 - Keep fiction manuscripts as typed static content separate from library and reader routes, so writing can be extended without changing presentation.
 - Use individual bundled cover illustrations in a shared BookCover component, so the collection and reading pages share each book's visual identity.
 - Represent manuscript availability from actual chapter data rather than planned length, so unfinished books cannot appear complete.
+- Read community submissions live from the `books-submission/` folder in this repository at runtime (see `src/lib/community-books.server.ts`), instead of a build-time ingest, so published books appear without a redeploy.
+- Regenerate manuscripts with `node tools/generate-manuscripts.mjs`; the script only reads books with id ≤ 30 and appends the generated horror-romance line, so reruns stay idempotent.
+- Route all interface copy through `src/lib/i18n.tsx` (`useLanguage().t`); book prose itself is never translated.
+

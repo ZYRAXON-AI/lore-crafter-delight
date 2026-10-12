@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiBooksRouteImport } from './routes/api.books'
 import { Route as BooksBookIdRouteImport } from './routes/books/$bookId'
+import { Route as ApiCommunityCoverSlugFileRouteImport } from './routes/api.community-cover.$slug.$file'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBooksRoute = ApiBooksRouteImport.update({
+  id: '/api/books',
+  path: '/api/books',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksBookIdRoute = BooksBookIdRouteImport.update({
@@ -22,31 +29,51 @@ const BooksBookIdRoute = BooksBookIdRouteImport.update({
   path: '/books/$bookId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCommunityCoverSlugFileRoute =
+  ApiCommunityCoverSlugFileRouteImport.update({
+    id: '/api/community-cover/$slug/$file',
+    path: '/api/community-cover/$slug/$file',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/books': typeof ApiBooksRoute
   '/books/$bookId': typeof BooksBookIdRoute
+  '/api/community-cover/$slug/$file': typeof ApiCommunityCoverSlugFileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/books': typeof ApiBooksRoute
   '/books/$bookId': typeof BooksBookIdRoute
+  '/api/community-cover/$slug/$file': typeof ApiCommunityCoverSlugFileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/books': typeof ApiBooksRoute
   '/books/$bookId': typeof BooksBookIdRoute
+  '/api/community-cover/$slug/$file': typeof ApiCommunityCoverSlugFileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/books/$bookId'
+  fullPaths:
+    '/' | '/api/books' | '/books/$bookId' | '/api/community-cover/$slug/$file'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/books/$bookId'
-  id: '__root__' | '/' | '/books/$bookId'
+  to: '/' | '/api/books' | '/books/$bookId' | '/api/community-cover/$slug/$file'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/books'
+    | '/books/$bookId'
+    | '/api/community-cover/$slug/$file'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiBooksRoute: typeof ApiBooksRoute
   BooksBookIdRoute: typeof BooksBookIdRoute
+  ApiCommunityCoverSlugFileRoute: typeof ApiCommunityCoverSlugFileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/books': {
+      id: '/api/books'
+      path: '/api/books'
+      fullPath: '/api/books'
+      preLoaderRoute: typeof ApiBooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/books/$bookId': {
       id: '/books/$bookId'
       path: '/books/$bookId'
@@ -65,12 +99,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksBookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/community-cover/$slug/$file': {
+      id: '/api/community-cover/$slug/$file'
+      path: '/api/community-cover/$slug/$file'
+      fullPath: '/api/community-cover/$slug/$file'
+      preLoaderRoute: typeof ApiCommunityCoverSlugFileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiBooksRoute: ApiBooksRoute,
   BooksBookIdRoute: BooksBookIdRoute,
+  ApiCommunityCoverSlugFileRoute: ApiCommunityCoverSlugFileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
