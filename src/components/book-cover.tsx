@@ -1,0 +1,12 @@
+import { coverFor, genreClass, type Book } from '@/lib/books';
+import { cn } from '@/lib/utils';
+
+export function BookCover({ book, className, priority = false }: { book: Book; className?: string; priority?: boolean }) {
+  return <div className={cn('book-cover', genreClass(book.genre), className)}>
+    <img src={coverFor(book.id)} alt={`${book.title} — প্রচ্ছদ`} width={320} height={512} loading={priority ? 'eager' : 'lazy'} />
+    <div className="cover-shade" />
+    <div className="cover-top">বইকথা <span> / </span> উপন্যাস</div>
+    <div className="cover-lettering"><span className="cover-genre">{book.genre}</span><h3>{book.title}</h3><div className="cover-rule" /><p>একটি বইকথা প্রকাশনা</p></div>
+    <div className="book-spine" />
+  </div>;
+}

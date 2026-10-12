@@ -8,3 +8,7 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep fiction manuscripts as typed static content separate from library and reader routes, so writing can be extended without changing presentation.
+- Use individual bundled cover illustrations in a shared BookCover component, so the collection and reading pages share each book's visual identity.
+- Represent manuscript availability from actual chapter data rather than planned length, so unfinished books cannot appear complete.
