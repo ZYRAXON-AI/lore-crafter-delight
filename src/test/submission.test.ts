@@ -42,20 +42,63 @@ describe("validateSubmission", () => {
     expect(result.chapterCount).toBe(2);
   });
 
-  it("rejects a submission with missing fields", () => {
-    expect(() => validateSubmission({ title: "x" })).toThrow(SubmissionError);
+  it("derives missing metadata instead of rejecting it", () => {
+    const result = validateSubmission({ book: `অধ্যায় ১: শুরু\n\n${longText}` });
+    expect(result.meta.title).toBeTruthy();
+    expect(result.meta.author).toBe("নাম না জানা লেখক");
+    expect(result.meta.genre).toBeTruthy();
+    expect(result.meta.description).toBeTruthy();
   });
 
-  it("rejects an unknown genre", () => {
-    expect(() =>
-      validateSubmission({
-        title: "পরীক্ষা",
-        author: "লেখক",
-        genre: "tomato",
-        description: "পরিচিতি",
-        book: longText,
-      }),
-    ).toThrow(/ঘরানা/);
+  it("keeps a genre that is already known", () => {
+    const result = validateSubmission({
+      title: "পরীক্ষা",
+      author: "লেখক",
+      genre: "প্রেম",
+      description: "পরিচিতি",
+      book: `অধ্যায় ১: শুরু\n\n${longText}`,
+    });
+    expect(result.meta.genre).toBe("প্রেম");
+  });
+
+  it("rejects an empty submission", () => {
+    expect(() => validateSubmission({})).toThrow(SubmissionError);
+  });
+
+  it("generates a cover image when none is supplied", () => {
+    const result = validateSubmission({
+      title: "পরীক্ষা",
+      author: "লেখক",
+      genre: "ভূত",
+      book: `অধ্যায় ১: শুরু\n\n${longText}`,
+    });
+    expect(result.coverFile?.name).toBe("cover.svg");
+    expect(result.coverFile?.content).toContain("<svg");
+    expect(result.meta.cover_url).toBe("");
+  });
+
+  it("keeps a supplied cover_url and commits no cover file", () => {
+    const result = validateSubmission({
+      title: "পরীক্ষা",
+      author: "লেখক",
+      genre: "প্রেম",
+      coverUrl: "https://example.com/cover.jpg",
+      book: `অধ্যায় ১: শুরু\n\n${longText}`,
+    });
+    expect(result.coverFile).toBeNull();
+    expect(result.meta.cover_url).toBe("https://example.com/cover.jpg");
+  });
+
+  it("decodes a data-url cover into a committed file", () => {
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg'></svg>";
+    const result = validateSubmission({
+      title: "পরীক্ষা",
+      book: `অধ্যায় ১: শুরু\n\n${longText}`,
+      coverUrl: `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`,
+    });
+    expect(result.coverFile?.name).toBe("cover.svg");
+    expect(result.coverFile?.content).toBe(svg);
+    expect(result.meta.cover_url).toBe("");
   });
 
   it("rejects a book that is too short", () => {
@@ -67,6 +110,6 @@ describe("validateSubmission", () => {
         description: "পরিচিতি",
         book: "খুব ছোট",
       }),
-    ).toThrow(/ছোট/);
+    ).toThrow(/ছোট|অক্ষর/);
   });
 });

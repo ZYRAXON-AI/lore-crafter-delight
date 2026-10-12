@@ -813,8 +813,67 @@ html {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   font-size: 12px;
   color: var(--muted-foreground);
+}
+.reading-end-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.listen-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 12px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+.listen-unsupported {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  gap: 8px;
+}
+.listen-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--ink-on-art);
+  letter-spacing: 0.02em;
+}
+.listen-label {
+  font-weight: 600;
+}
+.listen-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.listen-rate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.listen-rate input[type="range"] {
+  width: 96px;
+  accent-color: var(--accent, currentColor);
+}
+.listen-progress {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 .manuscript-note {
   text-align: center;
@@ -863,6 +922,18 @@ html {
 .genre-6 {
   --story-accent: oklch(0.4 0.14 12);
   --story-paper: oklch(0.97 0.01 15);
+}
+.genre-7 {
+  --story-accent: oklch(0.55 0.14 85);
+  --story-paper: oklch(0.99 0.015 85);
+}
+.genre-8 {
+  --story-accent: oklch(0.42 0.08 45);
+  --story-paper: oklch(0.985 0.012 60);
+}
+.genre-9 {
+  --story-accent: oklch(0.4 0.05 250);
+  --story-paper: oklch(0.98 0.006 250);
 }
 
 .cover-fallback {

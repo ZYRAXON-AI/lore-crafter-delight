@@ -11,26 +11,28 @@ const books = index as {
 }[];
 
 describe("Book index", () => {
-  it("contains forty-five distinct books", () => {
-    expect(books).toHaveLength(45);
-    expect(new Set(books.map((book) => book.id)).size).toBe(45);
-    expect(new Set(books.map((book) => book.title)).size).toBe(45);
+  it("contains sixty distinct books", () => {
+    expect(books).toHaveLength(60);
+    expect(new Set(books.map((book) => book.id)).size).toBe(60);
+    expect(new Set(books.map((book) => book.title)).size).toBe(60);
   });
 
-  it("keeps the original genre counts", () => {
-    expect(books.filter((book) => book.genre === "ভূত")).toHaveLength(5);
-    expect(books.filter((book) => book.genre === "প্রেম")).toHaveLength(5);
-    expect(books.filter((book) => book.genre === "রহস্য")).toHaveLength(5);
+  it("keeps the original genre counts, plus the new shelves", () => {
+    expect(books.filter((book) => book.genre === "ভূত")).toHaveLength(6);
+    expect(books.filter((book) => book.genre === "প্রেম")).toHaveLength(10);
+    expect(books.filter((book) => book.genre === "রহস্য")).toHaveLength(6);
+    expect(books.filter((book) => book.genre === "সামাজিক")).toHaveLength(6);
+    expect(books.filter((book) => book.genre === "হাস্যরস")).toHaveLength(2);
   });
 
   it("adds fifteen horror-romance novels", () => {
     expect(books.filter((book) => book.genre === "হরর-রোম্যান্স")).toHaveLength(15);
   });
 
-  it("gives every book eight chapters in the index", () => {
+  it("lists eight or twelve chapters per book, matching the outline", () => {
     for (const book of books) {
-      expect(book.chapterCount).toBe(8);
-      expect(book.outline).toHaveLength(8);
+      expect([8, 12]).toContain(book.chapterCount);
+      expect(book.outline).toHaveLength(book.chapterCount);
     }
   });
 });
@@ -53,13 +55,14 @@ describe("Full manuscripts", () => {
     }
   });
 
-  it("keeps every book at a novel length", async () => {
-    const book = await loadBook(45);
+  it("keeps the newest twelve-chapter book at novel length too", async () => {
+    const book = await loadBook(60);
+    expect(book?.chapters).toHaveLength(12);
     const total = (book?.chapters ?? []).reduce(
       (sum, chapter) => sum + words(chapter.paragraphs),
       0,
     );
-    expect(total).toBeGreaterThanOrEqual(20000);
+    expect(total).toBeGreaterThanOrEqual(40000);
   });
 
   it("returns undefined for an unknown id", async () => {

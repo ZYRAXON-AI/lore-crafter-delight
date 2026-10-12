@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildBook, profile } from "./manuscript-engine.mjs";
 import { splitManuscripts } from "./split-manuscripts.mjs";
+import { EXTRA_BOOKS, EXTRA_BOOK_GENRES } from "./extra-books.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const seedPath = path.join(here, "seed-books.json");
@@ -696,9 +697,43 @@ const newProfiles = NEW_BOOKS.map((entry, index) => {
   );
 });
 
+// The extra slip continues the shelf from id 46 onward, each book carrying its
+// own genre so romance, social and comedy sit beside horror-romance.
+const extraProfiles = EXTRA_BOOKS.map((entry, index) => {
+  const [
+    title,
+    subtitle,
+    outline,
+    place,
+    feature,
+    protagonist,
+    companion,
+    force,
+    object,
+    secret,
+    theme,
+  ] = entry;
+  return profile(
+    46 + index,
+    title,
+    EXTRA_BOOK_GENRES[index] ?? "প্রেম",
+    subtitle,
+    outline,
+    place,
+    feature,
+    protagonist,
+    companion,
+    force,
+    object,
+    secret,
+    theme,
+  );
+});
+
 const books = [
   ...existingProfiles.map((prof) => buildBook(prof)),
   ...newProfiles.map((prof) => buildBook(prof)),
+  ...extraProfiles.map((prof) => buildBook(prof)),
 ];
 
 const { books: written, booksDir } = splitManuscripts(books);

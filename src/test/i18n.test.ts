@@ -16,9 +16,11 @@ describe("Genre class mapping", () => {
   it("maps known genres to their palette index", () => {
     expect(genreClass("ভূত")).toBe("genre-0");
     expect(genreClass("হরর-রোম্যান্স")).toBe("genre-6");
+    expect(genreClass("হাস্যরস")).toBe("genre-7");
+    expect(genreClass("সামাজিক")).toBe("genre-8");
   });
 
   it("falls back to a valid class for unknown genres", () => {
-    expect(genreClass("অজানা ঘরানা")).toBe("genre-6");
+    expect(genreClass("অজানা ঘরানা")).toBe("genre-9");
   });
 });

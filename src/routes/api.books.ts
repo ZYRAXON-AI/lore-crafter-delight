@@ -9,7 +9,7 @@ import { SubmissionError, validateSubmission, type BookPayload } from "@/lib/boo
 const OWNER = process.env["BOOKS_REPO_OWNER"] ?? "zyraxon-X";
 const REPO = process.env["BOOKS_REPO_NAME"] ?? "lore-crafter-delight";
 const BASE = process.env["BOOKS_REPO_BRANCH"] ?? "main";
-const FOLDER = "books-submission";
+const FOLDER = "pdf-library";
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "cache-control": "no-store" } });
@@ -65,6 +65,14 @@ export const Route = createFileRoute("/api/books")({
             content: `${JSON.stringify(submission.meta, null, 2)}\n`,
           },
           { path: `${FOLDER}/${submission.slug}/book.txt`, content: `${submission.bookText}\n` },
+          ...(submission.coverFile
+            ? [
+                {
+                  path: `${FOLDER}/${submission.slug}/${submission.coverFile.name}`,
+                  content: submission.coverFile.content,
+                },
+              ]
+            : []),
         ];
 
         const token = process.env["GITHUB_TOKEN"];

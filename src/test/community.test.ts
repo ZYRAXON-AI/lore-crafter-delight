@@ -4,6 +4,9 @@ import {
   COVER_CANDIDATES,
   pickFirst,
   splitChapters,
+  inferGenre,
+  titleFromSlug,
+  deriveMeta,
 } from "@/lib/community-parse";
 import { toBookSummary, toLibraryBook } from "@/lib/community-to-book";
 import type { CommunityBook } from "@/lib/community-parse";
@@ -15,7 +18,8 @@ const entry: CommunityBook = {
   genre: "প্রেম",
   description: "নদী, ঘাট আর না-বলা কথার গল্প।",
   language: "বাংলা",
-  coverUrl: "/api/community-cover/nodir-naam/cover.jpg",
+  coverUrl: "/api/community-file/nodir-naam/cover.jpg",
+  pdfUrl: "",
   hasText: true,
   sourceFile: "book.txt",
   chapters: [{ title: "ঘাটে ফেরা", paragraphs: ["প্রথম অনুচ্ছেদ।"] }],
@@ -54,7 +58,7 @@ describe("Community submission parsing", () => {
     expect(book.id).toBe(-1);
     expect(book.title).toBe("নদীর নাম মনে নেই");
     expect(book.author).toBe("নমুনা লেখক");
-    expect(book.coverUrl).toBe("/api/community-cover/nodir-naam/cover.jpg");
+    expect(book.coverUrl).toBe("/api/community-file/nodir-naam/cover.jpg");
     expect(book.chapters).toHaveLength(1);
   });
 
@@ -62,5 +66,49 @@ describe("Community submission parsing", () => {
     const summary = toBookSummary(entry, 0);
     expect(summary.chapterCount).toBe(1);
     expect(summary).not.toHaveProperty("chapters");
+  });
+
+  it("carries a direct pdf link through to the reader", () => {
+    const pdfEntry: CommunityBook = {
+      ...entry,
+      coverUrl: "",
+      pdfUrl: "/api/community-file/kobita/kobita.pdf",
+      sourceFile: "kobita.pdf",
+      hasText: false,
+      chapters: [],
+    };
+    const book = toLibraryBook(pdfEntry, 4);
+    expect(book.pdfUrl).toBe("/api/community-file/kobita/kobita.pdf");
+    expect(book.sourceFile).toBe("kobita.pdf");
+  });
+});
+
+describe("Automatic metadata for bare submissions", () => {
+  it("reads a title back from a slug when none is given", () => {
+    expect(titleFromSlug("nodir-naam-mone-nei")).toBe("Nodir Naam Mone Nei");
+  });
+
+  it("guesses a genre from the manuscript text", () => {
+    expect(inferGenre("ভূতের গল্প, অশরীরী ডাক আর প্রেতের ছায়া।")).toBe("ভূত");
+    expect(inferGenre("কোনো চেনা শব্দ নেই এখানে।")).toBe("অন্যান্য");
+  });
+
+  it("derives title, author, genre and blurb with an empty meta.json", () => {
+    const meta = deriveMeta("nodir-naam", {}, "নদীর নাম মনে নেই\n\nপ্রথম অনুচ্ছেদ এখানে।");
+    expect(meta.title).toBe("নদীর নাম মনে নেই");
+    expect(meta.author).toBe("নাম না জানা লেখক");
+    expect(meta.description.length).toBeGreaterThan(0);
+    expect(meta.language).toBe("বাংলা");
+  });
+
+  it("never overrides fields the submission did provide", () => {
+    const meta = deriveMeta(
+      "nodir-naam",
+      { title: "আসল নাম", author: "আসল লেখক", genre: "রহস্য" },
+      "ভূতের গল্প।",
+    );
+    expect(meta.title).toBe("আসল নাম");
+    expect(meta.author).toBe("আসল লেখক");
+    expect(meta.genre).toBe("রহস্য");
   });
 });
